@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { sendTelegramText, sendTelegramDocument } from "../../../lib/telegram";
+import {
+  getTelegramConfig,
+  getTelegramDiagnostics,
+  sendTelegramText,
+  sendTelegramDocument,
+} from "../../../lib/telegram";
 
 export const runtime = "nodejs";
 
@@ -184,21 +189,23 @@ export async function POST(request: Request) {
 
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
-  const telegramToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
-  const telegramChatId = process.env.TELEGRAM_CHAT_ID?.trim();
+  const config = await getTelegramConfig();
 
   const canEmail = Boolean(apiKey && from);
-  const canTelegram = Boolean(telegramToken && telegramChatId);
+  const canTelegram = Boolean(config);
 
   if (!canEmail && !canTelegram) {
+    const diagnostics = await getTelegramDiagnostics();
     console.warn(
-      "[api/employment] هیچ کانال ارسالی (ایمیل یا تلگرام) پیکربندی نشده است."
+      "[api/employment] هیچ کانال ارسالی (ایمیل یا ربات) پیکربندی نشده است:",
+      diagnostics
     );
     return NextResponse.json(
       {
         ok: false,
         message:
           "ارسال درخواست در حال حاضر در دسترس نیست؛ لطفاً بعداً دوباره تلاش کنید.",
+        diagnostics,
       },
       { status: 503 }
     );
@@ -345,12 +352,12 @@ export async function POST(request: Request) {
       tgLines.push(`⏱ ثبت‌شده در ${esc(submittedAt)}`);
 
       await sendTelegramText(
-        { token: telegramToken!, chatId: telegramChatId! },
+        config!,
         tgLines.join("\n")
       );
       if (attachment) {
         await sendTelegramDocument(
-          { token: telegramToken!, chatId: telegramChatId! },
+          config!,
           {
             filename: attachment.filename,
             data: Buffer.from(attachment.content, "base64"),

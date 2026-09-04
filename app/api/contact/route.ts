@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { getTelegramConfig, sendTelegramText } from "../../../lib/telegram";
+import {
+  getTelegramConfig,
+  getTelegramDiagnostics,
+  sendTelegramText,
+} from "../../../lib/telegram";
 
 export const runtime = "nodejs";
 
@@ -108,16 +112,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const config = getTelegramConfig();
+  const config = await getTelegramConfig();
   if (!config) {
+    const diagnostics = await getTelegramDiagnostics();
     console.warn(
-      "[api/contact] TELEGRAM_BOT_TOKEN یا TELEGRAM_CHAT_ID تنظیم نشده است."
+      "[api/contact] پیکربندی ربات (تلگرام/بله) ناقص است:",
+      diagnostics
     );
     return NextResponse.json(
       {
         ok: false,
         message:
           "ارسال درخواست در حال حاضر در دسترس نیست؛ لطفاً بعداً دوباره تلاش کنید.",
+        diagnostics,
       },
       { status: 503 }
     );

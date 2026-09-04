@@ -73,19 +73,34 @@ function validate(values: FormValues): FormErrors {
   return errors;
 }
 
-// ساختار آماده برای اتصال به API واقعی در آینده:
-// این تابع فقط جای‌گذاری می‌شود و باید با فراخوانی API واقعی جایگزین شود.
-async function submitContactForm(values: FormValues): Promise<{ ok: boolean }> {
-  await new Promise((resolve) => setTimeout(resolve, 900));
-  // TODO: جایگزینی با fetch("/api/contact", { method: "POST", body: JSON.stringify(values) })
-  console.log("Contact form submission (placeholder):", values);
-  return { ok: true };
+async function submitContactForm(
+  values: FormValues
+): Promise<{ ok: boolean; message?: string }> {
+  try {
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    const result = (await response.json().catch(() => null)) as {
+      ok?: boolean;
+      message?: string;
+    } | null;
+    if (!response.ok || !result?.ok) {
+      return { ok: false, message: result?.message };
+    }
+    return { ok: true };
+  } catch (error) {
+    console.error("Contact form submission failed:", error);
+    return { ok: false };
+  }
 }
 
 export default function ContactForm() {
   const [values, setValues] = useState<FormValues>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const clearError = (field: keyof FormValues) =>
     setErrors((prev) =>
@@ -97,11 +112,13 @@ export default function ContactForm() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setValues((prev) => ({ ...prev, [field]: e.target.value }));
       clearError(field);
+      setErrorMessage(null);
     };
 
   const handleUrgentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues((prev) => ({ ...prev, urgentDelivery: e.target.checked }));
     clearError("deliveryDate");
+    setErrorMessage(null);
   };
 
   // تاریخ به‌صورت ISO میلادی ذخیره می‌شود (مطابق انتظار API) ولی در تقویم شمسی نمایش داده می‌شود.
@@ -124,6 +141,9 @@ export default function ContactForm() {
       setValues(initialValues);
     } else {
       setStatus("idle");
+      setErrorMessage(
+        result.message || "ارسال با خطا مواجه شد؛ لطفاً دوباره تلاش کنید."
+      );
     }
   };
 
@@ -237,6 +257,15 @@ export default function ContactForm() {
           </span>
         </label>
       </div>
+
+      {errorMessage && (
+        <p
+          role="alert"
+          className="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+        >
+          {errorMessage}
+        </p>
+      )}
 
       <button
         type="submit"

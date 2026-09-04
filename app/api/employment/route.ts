@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sendTelegramText, sendTelegramDocument } from "../../../lib/telegram";
 
 export const runtime = "nodejs";
 
@@ -183,15 +184,21 @@ export async function POST(request: Request) {
 
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
+  const telegramToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
+  const telegramChatId = process.env.TELEGRAM_CHAT_ID?.trim();
 
-  if (!apiKey || !from) {
-    const missing = !apiKey ? "RESEND_API_KEY" : "RESEND_FROM";
-    console.warn(`[api/employment] ${missing} تنظیم نشده است — ارسال ایمیل غیرفعال است.`);
+  const canEmail = Boolean(apiKey && from);
+  const canTelegram = Boolean(telegramToken && telegramChatId);
+
+  if (!canEmail && !canTelegram) {
+    console.warn(
+      "[api/employment] هیچ کانال ارسالی (ایمیل یا تلگرام) پیکربندی نشده است."
+    );
     return NextResponse.json(
       {
         ok: false,
         message:
-          "سرویس ارسال ایمیل هنوز پیکربندی نشده است؛ لطفاً بعداً دوباره تلاش کنید.",
+          "ارسال درخواست در حال حاضر در دسترس نیست؛ لطفاً بعداً دوباره تلاش کنید.",
       },
       { status: 503 }
     );
@@ -287,38 +294,121 @@ export async function POST(request: Request) {
     </div>
   </div>`;
 
-  let resendResponse: Response;
-  try {
-    resendResponse = await fetch(RESEND_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+  const failedChannels: string[] = [];
+
+  // ۱) ارسال از طریق ربات تلگرام
+  if (canTelegram) {
+    try {
+      const tgLines: string[] = [];
+      tgLines.push("<b>درخواست همکاری جدید — سازه افزار فتح</b>");
+      tgLines.push("━━━━━━━━━━━━━━━━━");
+      tgLines.push("<b>مشخصات فردی</b>");
+      tgLines.push(`نام و نام خانوادگی: ${esc(fullName)}`);
+      tgLines.push(`نام پدر: ${esc(fatherName) || "—"}`);
+      tgLines.push(`سابقه بیمه: ${esc(insuranceYears) || "ندارم"}`);
+      tgLines.push(`تاریخ تولد: ${birthDate}`);
+      tgLines.push(`کد ملی: ${esc(nationalId) || "—"}`);
+      tgLines.push("━━━━━━━━━━━━━━━━━");
+      tgLines.push("<b>مقطع تحصیلی</b>");
+      tgLines.push(`مقطع: ${esc(degree)}`);
+      if (degree !== "زیر دیپلم") {
+        tgLines.push(`رشته: ${esc(major)}`);
+        tgLines.push(`موسسه: ${esc(institution)}`);
+        tgLines.push(`معدل: ${esc(gpa)}`);
+      }
+      tgLines.push("━━━━━━━━━━━━━━━━━");
+      tgLines.push("<b>اطلاعات تماس</b>");
+      tgLines.push(`موبایل: ${esc(mobile)}`);
+      tgLines.push(`شماره ثابت: ${esc(landline) || "—"}`);
+      tgLines.push(`ایمیل: ${esc(email) || "—"}`);
+      if (workHistory.length) {
+        tgLines.push("━━━━━━━━━━━━━━━━━");
+        tgLines.push("<b>سوابق کار</b>");
+        for (const row of workHistory) {
+          const r = row as Record<string, unknown>;
+          tgLines.push(
+            `▪ ${esc(String(r.c1 ?? "—"))} | ${esc(String(r.c2 ?? "—"))} | ${esc(String(r.c3 ?? "—"))} | شروع: ${esc(String(r.c4 ?? "—"))} | خاتمه: ${esc(String(r.c5 ?? "—"))} | علت ترک: ${esc(String(r.c6 ?? "—"))}`
+          );
+        }
+      }
+      if (referees.length) {
+        tgLines.push("━━━━━━━━━━━━━━━━━");
+        tgLines.push("<b>معرفین</b>");
+        for (const row of referees) {
+          const r = row as Record<string, unknown>;
+          tgLines.push(
+            `▪ ${esc(String(r.c1 ?? "—"))} | ${esc(String(r.c2 ?? "—"))} | ${esc(String(r.c3 ?? "—"))} | ${esc(String(r.c4 ?? "—"))}`
+          );
+        }
+      }
+      tgLines.push("━━━━━━━━━━━━━━━━━");
+      tgLines.push(`⏱ ثبت‌شده در ${esc(submittedAt)}`);
+
+      await sendTelegramText(
+        { token: telegramToken!, chatId: telegramChatId! },
+        tgLines.join("\n")
+      );
+      if (attachment) {
+        await sendTelegramDocument(
+          { token: telegramToken!, chatId: telegramChatId! },
+          {
+            filename: attachment.filename,
+            data: Buffer.from(attachment.content, "base64"),
+            caption: `رزومه — ${fullName}`,
+          }
+        );
+      }
+    } catch (error) {
+      console.error("[api/employment] خطا در ارسال تلگرام:", error);
+      failedChannels.push("تلگرام");
+    }
+  }
+
+  // ۲) ارسال از طریق ایمیل (Resend) — در صورت پیکربندی
+  if (canEmail) {
+    try {
+      const resendResponse = await fetch(RESEND_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: [to],
+          subject: `درخواست همکاری جدید — ${fullName}`,
+          html,
+          ...(attachment ? { attachments: [attachment] } : {}),
+        }),
+      });
+      if (!resendResponse.ok) {
+        const detail = await resendResponse.text().catch(() => "");
+        console.error(
+          `[api/employment] خطای Resend (${resendResponse.status}):`,
+          detail
+        );
+        throw new Error(`Resend ${resendResponse.status}`);
+      }
+    } catch (error) {
+      console.error("[api/employment] خطا در اتصال به Resend:", error);
+      failedChannels.push("ایمیل");
+    }
+  }
+
+  const attemptedChannels = (canTelegram ? 1 : 0) + (canEmail ? 1 : 0);
+  if (failedChannels.length === attemptedChannels) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "ارسال درخواست با خطا مواجه شد؛ لطفاً دوباره تلاش کنید.",
       },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject: `درخواست همکاری جدید — ${fullName}`,
-        html,
-        ...(attachment ? { attachments: [attachment] } : {}),
-      }),
-    });
-  } catch (error) {
-    console.error("[api/employment] خطا در اتصال به Resend:", error);
-    return NextResponse.json(
-      { ok: false, message: "ارسال ایمیل با خطا مواجه شد؛ لطفاً دوباره تلاش کنید." },
       { status: 502 }
     );
   }
-
-  if (!resendResponse.ok) {
-    const detail = await resendResponse.text().catch(() => "");
-    console.error(`[api/employment] خطای Resend (${resendResponse.status}):`, detail);
-    return NextResponse.json(
-      { ok: false, message: "ارسال ایمیل با خطا مواجه شد؛ لطفاً دوباره تلاش کنید." },
-      { status: 502 }
+  if (failedChannels.length > 0) {
+    console.error(
+      `[api/employment] برخی کانال‌ها ناموفق بودند: ${failedChannels.join("، ")}`
     );
   }
-
   return NextResponse.json({ ok: true });
 }

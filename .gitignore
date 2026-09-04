@@ -45,3 +45,6 @@ next-env.d.ts
 
 # sample reference image (not part of the site)
 example form emp.jpg
+
+# اما الگوی env (بدون راز) باید در ریپو باشد
+!.env.example

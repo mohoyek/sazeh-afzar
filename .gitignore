@@ -48,3 +48,7 @@ example form emp.jpg
 
 # اما الگوی env (بدون راز) باید در ریپو باشد
 !.env.example
+
+# opennext / wrangler build output
+.open-next/
+.wrangler/

@@ -5,7 +5,7 @@ export const company = {
   name: "سازه افزار فتح",
   nameShort: "سازه افزار فتح",
   // آدرس وب‌سایت — در همه‌جای سئو (canonical، sitemap، robots، schema) از همین‌جا خوانده می‌شود
-  url: "https://sazehafzar.com",
+  url: "https://sazehafzar.tunelia.ir",
   foundedYear: 1397,
   foundedYearFa: "۱۳۹۷",
   tagline: "تولیدکننده تخصصی تیرهای بتنی برق",

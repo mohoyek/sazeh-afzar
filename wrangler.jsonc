@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "sazeh-afzar",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-04",
+  "compatibility_flags": [
+    // Next.js/OpenNext on Workers requires the Node.js compatibility flag
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

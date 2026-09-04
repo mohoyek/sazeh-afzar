@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="تصویر جایگزین پروژه">
+  <rect width="600" height="400" fill="#17212B"/>
+  <defs>
+    <pattern id="pgrid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#E5A623" stroke-width="0.5" opacity="0.18"/>
+    </pattern>
+  </defs>
+  <rect width="600" height="400" fill="url(#pgrid)"/>
+  <g stroke="#8A9095" stroke-width="10" opacity="0.8">
+    <line x1="120" y1="60" x2="120" y2="340"/>
+    <line x1="300" y1="40" x2="300" y2="340"/>
+    <line x1="480" y1="70" x2="480" y2="340"/>
+  </g>
+  <g stroke="#3D4A54" stroke-width="4">
+    <line x1="90" y1="100" x2="150" y2="100"/>
+    <line x1="270" y1="80" x2="330" y2="80"/>
+    <line x1="450" y1="110" x2="510" y2="110"/>
+  </g>
+  <line x1="120" y1="90" x2="300" y2="70" stroke="#E5A623" stroke-width="1.5" opacity="0.6"/>
+  <line x1="300" y1="70" x2="480" y2="95" stroke="#E5A623" stroke-width="1.5" opacity="0.6"/>
+  <text x="300" y="375" text-anchor="middle" font-family="sans-serif" font-size="15" fill="#8A9095">تصویر نمونه پروژه -- Placeholder</text>
+</svg>

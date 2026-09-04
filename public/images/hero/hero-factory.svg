@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-label="تصویر جایگزین کارخانه تولید تیر بتنی">
+  <rect width="1600" height="1000" fill="#17212B"/>
+  <defs>
+    <pattern id="hgrid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#8A9095" stroke-width="0.5" opacity="0.15"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#hgrid)"/>
+  <g stroke="#3D4A54" stroke-width="26" opacity="0.9">
+    <line x1="260" y1="200" x2="260" y2="900"/>
+    <line x1="560" y1="140" x2="560" y2="900"/>
+    <line x1="880" y1="230" x2="880" y2="900"/>
+    <line x1="1200" y1="170" x2="1200" y2="900"/>
+    <line x1="1480" y1="260" x2="1480" y2="900"/>
+  </g>
+  <g stroke="#17212B" stroke-width="10">
+    <line x1="200" y1="260" x2="320" y2="260"/>
+    <line x1="500" y1="200" x2="620" y2="200"/>
+    <line x1="820" y1="290" x2="940" y2="290"/>
+    <line x1="1140" y1="230" x2="1260" y2="230"/>
+    <line x1="1420" y1="320" x2="1540" y2="320"/>
+  </g>
+  <g stroke="#E5A623" stroke-width="1" opacity="0.55">
+    <line x1="260" y1="230" x2="560" y2="170"/>
+    <line x1="560" y1="170" x2="880" y2="260"/>
+    <line x1="880" y1="260" x2="1200" y2="200"/>
+    <line x1="1200" y1="200" x2="1480" y2="290"/>
+  </g>
+  <rect x="0" y="860" width="1600" height="140" fill="#0F161D"/>
+</svg>

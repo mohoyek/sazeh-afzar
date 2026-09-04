@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" role="img" aria-label="تصویر جایگزین پس‌زمینه تماس با ما">
+  <rect width="1600" height="700" fill="#17212B"/>
+  <defs>
+    <pattern id="ctagrid" width="45" height="45" patternUnits="userSpaceOnUse">
+      <path d="M 45 0 L 0 0 0 45" fill="none" stroke="#8A9095" stroke-width="0.5" opacity="0.18"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="700" fill="url(#ctagrid)"/>
+  <g stroke="#3D4A54" stroke-width="22" opacity="0.85">
+    <line x1="300" y1="100" x2="300" y2="700"/>
+    <line x1="700" y1="60" x2="700" y2="700"/>
+    <line x1="1100" y1="130" x2="1100" y2="700"/>
+    <line x1="1450" y1="90" x2="1450" y2="700"/>
+  </g>
+  <g stroke="#E5A623" stroke-width="1" opacity="0.5">
+    <line x1="300" y1="130" x2="700" y2="90"/>
+    <line x1="700" y1="90" x2="1100" y2="160"/>
+    <line x1="1100" y1="160" x2="1450" y2="120"/>
+  </g>
+</svg>

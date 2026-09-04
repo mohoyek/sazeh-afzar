@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="تصویر جایگزین تیم تولید">
+  <rect width="800" height="600" fill="#0F161D"/>
+  <defs>
+    <pattern id="cgrid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#E5A623" stroke-width="0.5" opacity="0.2"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#cgrid)"/>
+  <g stroke="#8A9095" stroke-width="16">
+    <line x1="180" y1="120" x2="180" y2="520"/>
+    <line x1="400" y1="80" x2="400" y2="520"/>
+    <line x1="620" y1="140" x2="620" y2="520"/>
+  </g>
+  <text x="400" y="565" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#8A9095">تصویر نمونه -- Placeholder</text>
+</svg>

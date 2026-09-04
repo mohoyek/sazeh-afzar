@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="نشان سازه افزار فتح">
+  <rect x="21" y="4" width="6" height="40" rx="1" fill="currentColor"/>
+  <rect x="8" y="14" width="12" height="4" fill="currentColor"/>
+  <rect x="28" y="14" width="12" height="4" fill="currentColor"/>
+  <circle cx="24" cy="6" r="2.2" fill="#E5A623"/>
+</svg>
